@@ -5,7 +5,7 @@
     <router-link to="/favor">收藏</router-link>
     <router-link to="/message">订单</router-link>
     <router-link to="/order">消息</router-link> -->
-    <tab-bar/>
+    <tab-bar v-if="!route.meta.hideTabBar"/>
   </div>
 </template>
 
@@ -13,6 +13,9 @@
 
 import { ref, reactive} from 'vue'
 import TabBar from '@/components/tab-bar/tab-bar.vue'
+import { useRoute } from "vue-router"
+
+const route = useRoute()
 
 </script>
 
