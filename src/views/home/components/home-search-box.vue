@@ -19,7 +19,7 @@
             <div class="start">
                 <div class="date">
                     <div class="tip">入住</div>
-                    <div class="time">{{ startDate }}</div>
+                    <div class="time">{{ startDateStr }}</div>
                 </div>
             </div>
 
@@ -28,7 +28,7 @@
             <div class="end">
                 <div class="date">
                     <div class="tip">离店</div>
-                    <div class="time">{{ endDate }}</div>
+                    <div class="time">{{ endDateStr }}</div>
                 </div>
             </div>
         </div>
@@ -63,16 +63,22 @@
                 </div>
             </template>
         </div>
+
+        <!-- 搜索按钮 -->
+        <div class="section search-btn">
+            <div class="btn" @click="searchBtnClick">开始搜索</div>
+        </div>
     </div>
 </template>
 
 <script setup lang="ts">
 import useCityStore from "@/stores/modules/city";
 import { storeToRefs } from "pinia";
-import { ref, reactive } from "vue";
+import { ref, reactive, computed } from "vue";
 import { useRouter } from "vue-router";
 import { formatMonthDay, getDiffDays } from "@/utils/format_date";
 import useHomeStore from "@/stores/modules/home";
+import useMainStore from '@/stores/modules/main'
 
 const router = useRouter();
 
@@ -101,21 +107,22 @@ const cityStore = useCityStore();
 const { currentCity } = storeToRefs(cityStore);
 
 // 3、日期范围的处理
-const nowDate = new Date();
-const newDate = new Date();
-newDate.setDate(nowDate.getDate() + 1);
+const mainStore = useMainStore()
+const {startDate, endDate} = storeToRefs(mainStore)
 
-//3.1、对日期做标准化，且转化为响应式对象
-const startDate = ref(formatMonthDay(nowDate));
-const endDate = ref(formatMonthDay(newDate));
-const stayCount = ref(getDiffDays(nowDate, newDate));
+const startDateStr = computed(()=>formatMonthDay(startDate.value))
+const endDateStr = computed(()=>formatMonthDay(endDate.value))
+const stayCount = ref(getDiffDays(startDate.value, endDate.value))
 
 const showCalendar = ref(false);
 const onConfirm = (value) => {
     const selectStartDate = value[0];
     const selectEndDate = value[1];
-    startDate.value = formatMonthDay(selectStartDate);
-    endDate.value = formatMonthDay(selectEndDate);
+    // startDate.value = formatMonthDay(selectStartDate);
+    // endDate.value = formatMonthDay(selectEndDate);
+    mainStore.startDate = selectStartDate
+    mainStore.endDate = selectEndDate
+    // console.log("value[0]的类型为：",typeof(value[0]));
     stayCount.value = getDiffDays(selectStartDate, selectEndDate);
 
     showCalendar.value = false;
@@ -125,108 +132,137 @@ const onConfirm = (value) => {
 const homeStore = useHomeStore();
 const { hotSuggests } = storeToRefs(homeStore);
 // console.log(homeStore);
+
+//搜索按钮 的 点击事件
+const searchBtnClick = () => {
+    router.push({
+        path:'/search',
+        query:{
+            startDate:startDate.value,
+            endDate:endDate.value,
+            currentCity:currentCity.value.cityName
+        }
+    })
+};
+
 </script>
 
 <style lang="less" scoped>
 .search-box {
-    --van-calendar-popup-height: 100%;
+  --van-calendar-popup-height: 100%;
 }
 
 .location {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 20px;
+
+  .city {
+    flex: 1;
+    color: #333;
+    font-size: 15px;
+  }
+
+  .position {
+    width: 74px;
     display: flex;
     align-items: center;
-    height: 44px;
-    padding: 0 20px;
 
-    .city {
-        flex: 1;
-        color: #333;
-        font-size: 15px;
+    .text {
+      position: relative;
+      top: 2px;
+      color: #666;
+      font-size: 12px;
     }
 
-    .position {
-        width: 74px;
-        display: flex;
-        align-items: center;
-
-        .text {
-            position: relative;
-            top: 2px;
-            color: #666;
-            font-size: 12px;
-        }
-
-        img {
-            margin-left: 5px;
-            width: 18px;
-            height: 18px;
-        }
+    img {
+      margin-left: 5px;
+      width: 18px;
+      height: 18px;
     }
+  }
 }
 
 .section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 0 20px;
+  color: #999;
+  height: 44px;
+
+  .start {
+    flex: 1;
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 0 20px;
-    color: #999;
     height: 44px;
+    align-items: center;
+  }
 
-    .start {
-        flex: 1;
-        display: flex;
-        height: 44px;
-        align-items: center;
+  .end {
+    min-width: 30%;
+    padding-left: 20px;
+  }
+
+  .date {
+    display: flex;
+    flex-direction: column;
+
+    .tip {
+      font-size: 12px;
+      color: #999;
     }
 
-    .end {
-        min-width: 30%;
-        padding-left: 20px;
+    .time {
+      margin-top: 3px;
+      color: #333;
+      font-size: 15px;
+      font-weight: 500;
     }
-
-    .date {
-        display: flex;
-        flex-direction: column;
-
-        .tip {
-            font-size: 12px;
-            color: #999;
-        }
-
-        .time {
-            margin-top: 3px;
-            color: #333;
-            font-size: 15px;
-            font-weight: 500;
-        }
-    }
+  }
 }
 
 .date-range {
-    height: 44px;
-    .stay {
-        flex: 1;
-        text-align: center;
-        font-size: 12px;
-        color: #666;
-    }
+  height: 44px;
+  .stay {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    color: #666;
+  }
 }
 
 .price-counter {
-    .start {
-        border-right: 1px solid var(--line-color);
-    }
+  .start {
+    border-right: 1px solid  var(--line-color);
+  }
 }
 
 .hot-suggests {
-    margin: 10px 0;
+  margin: 10px 0;
+  height: auto;
 
-    .item {
-        padding: 4px 8px;
-        margin: 4px;
-        border-radius: 14px;
-        font-size: 12px;
-        line-height: 1;
-    }
+  .item {
+    padding: 4px 8px;
+    margin: 4px;
+    border-radius: 14px;
+    font-size: 12px;
+    line-height: 1;
+  }
+}
+
+.search-btn {
+  .btn {
+    width: 342px;
+    height: 38px;
+    max-height: 50px;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 38px;
+    text-align: center;
+    border-radius: 20px;
+    color: #fff;
+    background-image: var(--theme-linear-gradient);
+  }
 }
 </style>

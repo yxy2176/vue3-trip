@@ -1,11 +1,7 @@
 <template>
   <div class="app">
     <router-view/>
-    <!-- <router-link to="/home">首页</router-link>
-    <router-link to="/favor">收藏</router-link>
-    <router-link to="/message">订单</router-link>
-    <router-link to="/order">消息</router-link> -->
-    <tab-bar v-if="!route.meta.hideTabBar"/>
+    <tab-bar v-show="!route.meta.hideTabBar"/>
   </div>
 </template>
 

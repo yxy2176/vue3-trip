@@ -17,7 +17,10 @@ const router = createRouter({
         },
         {
             path: "/message",
-            component: () => import("../views/message/message.vue")
+            component: () => import("../views/message/message.vue"),
+            meta: {
+                hideTabBar:true
+            }
         },
         {
             path: "/order",
@@ -29,6 +32,14 @@ const router = createRouter({
             // meta: {
             //     hideTabBar:true
             // }
+        },
+        // 搜索页面
+        {
+            path: "/search",
+            component: () => import("../views/search/search.vue"),
+            meta: {
+                hideTabBar:true
+            }
         },
     ]
 })
