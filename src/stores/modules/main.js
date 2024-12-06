@@ -7,11 +7,13 @@ endDate.setDate(startDate.getDate() + 1)
 
 const useMainStore = defineStore("main", {
     state: () => ({
-            token: "",
+        token: "",
 
-            startDate: startDate,
-            endDate: endDate
-        }),
+        startDate: startDate,
+        endDate: endDate,
+
+        isLoading: false
+    }),
 })
 
 export default useMainStore;

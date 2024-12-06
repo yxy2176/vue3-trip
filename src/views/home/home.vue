@@ -10,7 +10,7 @@
             <search-bar :start-date="'09.19'" :end-date="'09.20'"/>
         </div>
         <home-content/>
-        <button @click="moreBtnClick">加载更多</button>
+        <!-- <button @click="moreBtnClick">加载更多</button> -->
     </div>
 </template>
 
@@ -21,7 +21,7 @@ import HomeSearchBox from "./components/home-search-box.vue";
 import HomeCategories from "./components/home-categories.vue"
 import HomeContent from "./components/home-content.vue"
 import useScroll from '@/hooks/useScroll'
-import {watch, computed} from 'vue'
+import {watch, computed, ref} from 'vue'
 import SearchBar from '@/components/search-bar/search-bar.vue'
 
 // 发送网络请求
@@ -36,6 +36,7 @@ const moreBtnClick= () =>{
     homeStore.fetchHouselistData()
 }
 
+// 这里不需要传入参数，useScroll控制的是整个window窗口
 const {isReachBottom,scrollTop} = useScroll()
 watch(isReachBottom,(newValue)=>{
     if(newValue){
